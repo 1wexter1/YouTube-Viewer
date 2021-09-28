@@ -1,0 +1,544 @@
+
+database_backup.db	database_backup.db
+config.json	config.json
+chromedriver.exe	chromedriver.exe
+version.txt
+*.log	*.log
+  15  README.md 
+@@ -25,7 +25,7 @@ Simple program to increase YouTube views written in Python. Works with live stre
+
+
+**Disclaimer:** This has been developed for educational purposes only. Any action you take using this script is strictly at your own risk. I will not be liable for any losses or damages you face using this script.	**Disclaimer:** This has been developed for educational purposes only. Any action you take using this script is strictly at your own risk. I will not be liable for any losses or damages you face using this script.
+
+
+**Cons:** Try not to use this script every day. Run this once or twice a week with newer proxies. Guess this will reduce the view decrease issue.	**Cons:** There will be some view drop always. 
+
+
+
+
+# Support	# Support
+@@ -44,7 +44,7 @@ Simple program to increase YouTube views written in Python. Works with live stre
+# Features	# Features
+ * YouTube default, live streaming and YouTube Music support	 * YouTube default, live streaming and YouTube Music support
+ * Multithreaded and Dynamic thread support	 * Multithreaded and Dynamic thread support
+ * Auto download chrome driver 	 * Auto download updated chrome driver whenever user's Google Chrome version is updated
+ * Patch chrome driver on the start of every thread by undetected-chromedriver	 * Patch chrome driver on the start of every thread by undetected-chromedriver
+ * Proxy support 	 * Proxy support 
+      * location : text file (must be on path) / proxy API (should work with most of the proxy providers)	      * location : text file (must be on path) / proxy API (should work with most of the proxy providers)
+@@ -55,6 +55,7 @@ Simple program to increase YouTube views written in Python. Works with live stre
+ * chrome v70+ randomized user agent based on platform	 * chrome v70+ randomized user agent based on platform
+ * canvas,audio,font,webgl fingerprint defender and IP leak prevent by webrtc control	 * canvas,audio,font,webgl fingerprint defender and IP leak prevent by webrtc control
+ * geolocation, timezone, referer spoofing	 * geolocation, timezone, referer spoofing
+ * can add extra extensions in the `extension/custom_extension/` folder
+ * direct link or search *keyword* on YouTube then watch the video by matching exact video *title*	 * direct link or search *keyword* on YouTube then watch the video by matching exact video *title*
+ * modify urls.txt and search.txt on the fly without restarting program	 * modify urls.txt and search.txt on the fly without restarting program
+ * HTTP api on localhost and a database to store view count	 * HTTP api on localhost and a database to store view count
+@@ -116,7 +117,7 @@ Simple program to increase YouTube views written in Python. Works with live stre
+# Windows	# Windows
+* ## Binary Release	* ## Binary Release
+
+
+  For windows you can download binary releases from **[Binary releases](https://github.com/MShawon/YouTube-Viewer/releases)** or you can install it from source. To do so keep reading. 	  For windows you can download binary releases from **[Binary releases](https://github.com/MShawon/YouTube-Viewer/releases)**. Download this file named `YouTube-Viewer_win_x.x.x.zip`, unzip it and run the `youtube_viewer.exe`. Or you can install it from source. To do so keep reading. 
+
+
+* ## Installation 	* ## Installation 
+
+
+@@ -180,15 +181,15 @@ Simple program to increase YouTube views written in Python. Works with live stre
+   * Rest is self explanatory.	   * Rest is self explanatory.
+
+
+ # Best Practices	 # Best Practices
+  There will be some view drop always. To get the most out of this script you should maintain these things.	  To get the most out of this script you should maintain these things.
+  * Don't use HEADLESS mode. Because no IP leak prevention, fingerprint defending, etc. can be done in headless mode.	  * Don't use HEADLESS mode. Because no IP leak prevention, fingerprint defending, etc. can be done in headless mode.
+  * Youtube doesn't count views from the same IP after a certain time. Like, don't expect to get 100 views from 10 proxies. If you want more views, try to use a lot of premium proxies(free proxies are flagged by most of the websites) 	  * Youtube doesn't count views from the same IP after a certain time. Like, don't expect to get 100 views from 10 proxies. If you want more views, try to use a lot of premium proxies(free proxies are flagged by most websites). DO NOT use TOR proxies.
+  * Use both [urls.txt](https://github.com/MShawon/YouTube-Viewer#urls) and [search.txt](https://github.com/MShawon/YouTube-Viewer#search)	  * Use both [urls.txt](https://github.com/MShawon/YouTube-Viewer#urls) and [search.txt](https://github.com/MShawon/YouTube-Viewer#search)
+  * And use as many [urls](https://github.com/MShawon/YouTube-Viewer#urls) and [keyword::::title](https://github.com/MShawon/YouTube-Viewer#search) as you can. Don't use just one video.	  * And use as many [urls](https://github.com/MShawon/YouTube-Viewer#urls) and [keyword::::title](https://github.com/MShawon/YouTube-Viewer#search) as you can. Don't use just one video.
+
+
+
+
+ # Issues	 # Issues
+ Before opening an issue, please read this page thoroughly. Maybe someone already faced the same problem you have right now. So it's always a good idea to check the answer to issues first. If your problem isn't there, feel free to open an issue. Also, don't forget to give as many details as you can. config.json and a screenshot of terminal output provide a lot of information to resolve your problem.	 Before opening an issue, please read this page thoroughly. Maybe someone already faced the same problem you have right now. So it's always a good idea to check the answer to issues first. If your problem isn't there, feel free to open an issue. Also, don't forget to give as many details as you can. config.json and a screenshot of terminal output provide a handful of information to resolve your problem.
+
+
+# Credits	# Credits
+I want to thank all of you who have opened an issue or shared your code snippets or ideas with me! 	 I want to thank all of you who have opened an issue or shared your code snippets or ideas with me! 
+ 1  extension/custom_extension/Readme.md 
+@@ -0,0 +1 @@
+## Place all the extra extensions you want to use here. Both `.zip` and `.crx` extension is supported.
+  213  youtube_viewer.py 
+@@ -37,6 +37,7 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed	from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import closing	from contextlib import closing
+from datetime import datetime	from datetime import datetime
+from glob import glob
+from random import choice, choices, randint, shuffle, uniform	from random import choice, choices, randint, shuffle, uniform
+from time import gmtime, sleep, strftime, time	from time import gmtime, sleep, strftime, time
+
+
+@@ -89,7 +90,7 @@ class bcolors:
+           [ GitHub : https://github.com/MShawon/YouTube-Viewer ]	           [ GitHub : https://github.com/MShawon/YouTube-Viewer ]
+""" + bcolors.ENDC)	""" + bcolors.ENDC)
+
+
+SCRIPT_VERSION = '1.6.0'	SCRIPT_VERSION = '1.6.1'
+
+
+proxy = None	proxy = None
+driver = None	driver = None
+@@ -113,6 +114,9 @@ class bcolors:
+ACTIVE = os.path.join('extension', 'always_active.zip')	ACTIVE = os.path.join('extension', 'always_active.zip')
+FINGERPRINT = os.path.join('extension', 'fingerprint_defender.zip')	FINGERPRINT = os.path.join('extension', 'fingerprint_defender.zip')
+TIMEZONE = os.path.join('extension', 'spoof_timezone.zip')	TIMEZONE = os.path.join('extension', 'spoof_timezone.zip')
+CUSTOM_EXTENSIONS = glob(os.path.join('extension', 'custom_extension', '*.zip')) + \
+    glob(os.path.join('extension', 'custom_extension', '*.crx'))
+
+DATABASE = 'database.db'	DATABASE = 'database.db'
+DATABASE_BACKUP = 'database_backup.db'	DATABASE_BACKUP = 'database_backup.db'
+
+
+@@ -128,7 +132,7 @@ class bcolors:
+REFERERS = ['https://search.yahoo.com/', 'https://duckduckgo.com/', 'https://www.google.com/',	REFERERS = ['https://search.yahoo.com/', 'https://duckduckgo.com/', 'https://www.google.com/',
+            'https://www.bing.com/', 'https://t.co/', '']	            'https://www.bing.com/', 'https://t.co/', '']
+
+
+COMMANDS = [Keys.UP, Keys.DOWN, 'j', 'l', 'm', 't', 'c']	COMMANDS = [Keys.UP, Keys.DOWN, 'k', 'j', 'l', 'm', 't', 'c']
+
+
+website.console = console	website.console = console
+website.database = DATABASE	website.database = DATABASE
+@@ -152,7 +156,8 @@ def monkey_patch_exe(self):
+                fh.write(replacement)	                fh.write(replacement)
+                linect += 1	                linect += 1
+        return linect	        return linect
+
+
+
+Patcher.patch_exe = monkey_patch_exe	Patcher.patch_exe = monkey_patch_exe
+
+
+
+
+@@ -232,12 +237,29 @@ def download_driver():
+                        pass	                        pass
+
+
+        if not version:	        if not version:
+            print(bcolors.WARNING +
+                  "Couldn't find your Google Chrome version automatically!" + bcolors.ENDC)
+            version = input(bcolors.WARNING +	            version = input(bcolors.WARNING +
+                            'Please input your google chrome version (ex: 91.0.4472.114) : ' + bcolors.ENDC)	                            'Please input your google chrome version (ex: 91.0.4472.114) : ' + bcolors.ENDC)
+    else:	    else:
+        print('{} OS is not supported.'.format(OSNAME))	        print('{} OS is not supported.'.format(OSNAME))
+        sys.exit()	        sys.exit()
+
+
+    try:
+        with open('version.txt', 'r') as f:
+            previous_version = f.read()
+    except:
+        previous_version = '0'
+
+    with open('version.txt', 'w') as f:
+        f.write(version)
+
+    if version != previous_version:
+        try:
+            os.remove(f'chromedriver{EXE_NAME}')
+        except:
+            pass
+
+    major_version = version.split('.')[0]	    major_version = version.split('.')[0]
+
+
+    uc.TARGET_VERSION = major_version	    uc.TARGET_VERSION = major_version
+@@ -253,7 +275,8 @@ def copy_drivers(total):
+    os.makedirs('patched_drivers', exist_ok=True)	    os.makedirs('patched_drivers', exist_ok=True)
+    for i in range(total+1):	    for i in range(total+1):
+        try:	        try:
+            destination = os.path.join(cwd, 'patched_drivers', f'chromedriver_{i}{EXE_NAME}')	            destination = os.path.join(
+                cwd, 'patched_drivers', f'chromedriver_{i}{EXE_NAME}')
+            shutil.copy(current, destination)	            shutil.copy(current, destination)
+        except Exception as e:	        except Exception as e:
+            print(e)	            print(e)
+@@ -394,7 +417,7 @@ def scrape_api(link):
+        proxy = output.split('\r\n')	        proxy = output.split('\r\n')
+    else:	    else:
+        proxy = output.split('\n')	        proxy = output.split('\n')
+    	
+    for lines in proxy:	    for lines in proxy:
+        if lines.count(':') == 3:	        if lines.count(':') == 3:
+            split = lines.split(':')	            split = lines.split(':')
+@@ -412,7 +435,7 @@ def detect_file_change():
+
+
+    with open("urls.txt", "rb") as f:	    with open("urls.txt", "rb") as f:
+        new_hash = hashlib.md5(f.read()).hexdigest()	        new_hash = hashlib.md5(f.read()).hexdigest()
+    	
+    if new_hash != hash_urls:	    if new_hash != hash_urls:
+        hash_urls = new_hash	        hash_urls = new_hash
+        urls = load_url()	        urls = load_url()
+@@ -453,9 +476,12 @@ def get_driver(path, agent, proxy, proxy_type, pluginfile):
+    options.add_experimental_option(	    options.add_experimental_option(
+        "excludeSwitches", ["enable-automation", "enable-logging"])	        "excludeSwitches", ["enable-automation", "enable-logging"])
+    options.add_experimental_option('useAutomationExtension', False)	    options.add_experimental_option('useAutomationExtension', False)
+    options.add_experimental_option('prefs', {'intl.accept_languages': 'en_US,en'})	    options.add_experimental_option(
+        'prefs', {'intl.accept_languages': 'en_US,en'})
+    options.add_argument(f"user-agent={agent}")	    options.add_argument(f"user-agent={agent}")
+    options.add_argument("--mute-audio")	    options.add_argument("--mute-audio")
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-features=UserAgentClientHint')	    options.add_argument('--disable-features=UserAgentClientHint')
+    webdriver.DesiredCapabilities.CHROME['loggingPrefs'] = {	    webdriver.DesiredCapabilities.CHROME['loggingPrefs'] = {
+        'driver': 'OFF', 'server': 'OFF', 'browser': 'OFF'}	        'driver': 'OFF', 'server': 'OFF', 'browser': 'OFF'}
+@@ -466,6 +492,10 @@ def get_driver(path, agent, proxy, proxy_type, pluginfile):
+        options.add_extension(TIMEZONE)	        options.add_extension(TIMEZONE)
+        options.add_extension(ACTIVE)	        options.add_extension(ACTIVE)
+
+
+        if CUSTOM_EXTENSIONS:
+            for extension in CUSTOM_EXTENSIONS:
+                options.add_extension(extension)
+
+    if auth_required:	    if auth_required:
+        proxy = proxy.replace('@', ':')	        proxy = proxy.replace('@', ':')
+        proxy = proxy.split(':')	        proxy = proxy.split(':')
+@@ -608,10 +638,11 @@ def bypass_popup(driver):
+def bypass_other_popup(driver):	def bypass_other_popup(driver):
+    popups = ['Got it', 'Skip trial', 'No thanks', 'Dismiss', 'Not now']	    popups = ['Got it', 'Skip trial', 'No thanks', 'Dismiss', 'Not now']
+    shuffle(popups)	    shuffle(popups)
+    	
+    for popup in popups:	    for popup in popups:
+        try:	        try:
+            driver.find_element_by_xpath(f"//*[@id='button' and @aria-label='{popup}']").click()	            driver.find_element_by_xpath(
+                f"//*[@id='button' and @aria-label='{popup}']").click()
+        except:	        except:
+            pass	            pass
+
+
+@@ -761,30 +792,37 @@ def save_bandwidth(driver):
+
+
+def change_playback_speed(driver):	def change_playback_speed(driver):
+    if playback_speed == 2:	    if playback_speed == 2:
+        driver.find_element_by_id('movie_player').send_keys('<'*randint(1,3))	        driver.find_element_by_id('movie_player').send_keys('<'*randint(1, 3))
+    elif playback_speed == 3:	    elif playback_speed == 3:
+        driver.find_element_by_id('movie_player').send_keys('>'*randint(1,3))	        driver.find_element_by_id('movie_player').send_keys('>'*randint(1, 3))
+
+
+
+
+def random_command(driver):	def random_command(driver):
+    bypass_other_popup(driver)	    bypass_other_popup(driver)
+
+
+    option = choices([1,2], cum_weights=(0.7, 1.00), k=1)[0]	    option = choices([1, 2], cum_weights=(0.7, 1.00), k=1)[0]
+    if option == 2:	    if option == 2:
+        command = choice(COMMANDS)	        command = choice(COMMANDS)
+        if command in ['m', 't', 'c']:	        if command in ['m', 't', 'c']:
+            driver.find_element_by_id('movie_player').send_keys(command)	            driver.find_element_by_id('movie_player').send_keys(command)
+        elif command == 'k':
+            driver.find_element_by_id('movie_player').send_keys(command)
+            driver.execute_script(
+                f'document.querySelector("#comments"){choices(["scrollIntoView", "scrollIntoViewIfNeeded"])}();')
+            sleep(randint(4, 10))
+            driver.execute_script(
+                'document.querySelector("#movie_player").scrollIntoViewIfNeeded();')
+        else:	        else:
+            driver.find_element_by_id('movie_player').send_keys(command*randint(1,5))	            driver.find_element_by_id(
+                'movie_player').send_keys(command*randint(1, 5))
+
+
+
+
+
+def quit_driver(driver, pluginfile):	def quit_driver(driver, pluginfile):
+    try:	    try:
+        os.remove(pluginfile)	        os.remove(pluginfile)
+    except:	    except:
+        pass	        pass
+    	
+    try:	    try:
+        driver_list.remove(driver)	        driver_list.remove(driver)
+    except:	    except:
+@@ -814,6 +852,37 @@ def main_viewer(proxy_type, proxy, position):
+        ).generate()	        ).generate()
+        agent = header['User-Agent']	        agent = header['User-Agent']
+
+
+        url = ''
+
+        if position % 2:
+            try:
+                method = 1
+                url = choice(urls)
+                output = url
+                if 'music.youtube.com' in url:
+                    youtube = 'Music'
+                else:
+                    youtube = 'Video'
+            except:
+                raise UrlsError
+
+        else:
+            try:
+                method = 2
+                query = choice(queries)
+                keyword = query[0]
+                video_title = query[1]
+                url = "https://www.youtube.com"
+                output = video_title
+                youtube = 'Video'
+            except:
+                url = choice(urls)
+                output = url
+                if 'music.youtube.com' in url:
+                    youtube = 'Music'
+                else:
+                    raise SearchError
+
+        if category == 'r' and proxy_api:	        if category == 'r' and proxy_api:
+            proxies = scrape_api(link=proxy)	            proxies = scrape_api(link=proxy)
+            proxy = choice(proxies)	            proxy = choice(proxies)
+@@ -839,42 +908,10 @@ def main_viewer(proxy_type, proxy, position):
+                pluginfile = os.path.join(	                pluginfile = os.path.join(
+                    'extension', f'proxy_auth_plugin{position}.zip')	                    'extension', f'proxy_auth_plugin{position}.zip')
+
+
+                url = ''	                driver = get_driver(patched_driver, agent,
+
+                                    proxy, proxy_type, pluginfile)
+                if position % 2:	
+                    try:	
+                        method = 1	
+                        url = choice(urls)	
+                        output = url	
+                        if 'music.youtube.com' in url:	
+                            youtube = 'Music'	
+                        else:	
+                            youtube = 'Video'	
+                    except:	
+                        raise UrlsError	
+
+                else:	
+                    try:	
+                        method = 2	
+                        query = choice(queries)	
+                        keyword = query[0]	
+                        video_title = query[1]	
+                        url = "https://www.youtube.com"	
+                        output = video_title	
+                        youtube = 'Video'	
+                    except:	
+                        url = choice(urls)	
+                        output = url	
+                        if 'music.youtube.com' in url:	
+                            youtube = 'Music'	
+                        else:	
+                            raise SearchError	
+
+                driver = get_driver(patched_driver, agent, proxy, proxy_type, pluginfile)	
+
+
+                driver_list.append(driver)	                driver_list.append(driver)
+                # driver.get('http://httpbin.org/ip')	
+                # sleep(30)	
+
+
+                sleep(2)	                sleep(2)
+
+
+@@ -894,14 +931,25 @@ def main_viewer(proxy_type, proxy, position):
+                        "Emulation.setGeolocationOverride", params)	                        "Emulation.setGeolocationOverride", params)
+                except:	                except:
+                    pass	                    pass
+                	
+                referer = choice(REFERERS)	                referer = choice(REFERERS)
+                if referer:	                if referer:
+                    if method == 2 and 't.co/' in referer:	                    if method == 2 and 't.co/' in referer:
+                        driver.get(url)	                        driver.get(url)
+                    else:	                    else:
+                        driver.get(referer)	                        driver.get(referer)
+                        driver.execute_script("window.location.href = '{}';".format(url))	                        if 'consent.yahoo.com' in driver.current_url:
+                            try:
+                                consent = driver.find_element_by_xpath(
+                                    "//button[@name='agree']")
+                                driver.execute_script(
+                                    "arguments[0].scrollIntoView();", consent)
+                                consent.click()
+                                driver.get(referer)
+                            except:
+                                pass
+                        driver.execute_script(
+                            "window.location.href = '{}';".format(url))
+                else:	                else:
+                    driver.get(url)	                    driver.get(url)
+
+
+@@ -979,7 +1027,7 @@ def main_viewer(proxy_type, proxy, position):
+                                         "#23d18b": f"{proxy} | {output} | ", "#29b2d3": f"{view_stat} "})	                                         "#23d18b": f"{proxy} | {output} | ", "#29b2d3": f"{view_stat} "})
+                        else:	                        else:
+                            error += 1	                            error += 1
+                    	
+                        play_video(driver)	                        play_video(driver)
+                        random_command(driver)	                        random_command(driver)
+
+
+@@ -1022,6 +1070,9 @@ def main_viewer(proxy_type, proxy, position):
+                        if current_time > video_len or driver.current_url != current_url:	                        if current_time > video_len or driver.current_url != current_url:
+                            break	                            break
+
+
+                if randint(1, 2) == 1:
+                    driver.find_element_by_id('movie_player').send_keys('k')
+
+                view.append(position)	                view.append(position)
+
+
+                view_count = len(view)	                view_count = len(view)
+@@ -1038,26 +1089,6 @@ def main_viewer(proxy_type, proxy, position):
+
+
+                status = quit_driver(driver, pluginfile)	                status = quit_driver(driver, pluginfile)
+
+
+            except UrlsError:	
+                print(timestamp() + bcolors.FAIL +	
+                      f"Tried {position} | Your urls.txt is empty!" + bcolors.ENDC)	
+
+                create_html(	
+                    {"#f14c4c": f"Tried {position} | Your urls.txt is empty!"})	
+
+                status = 400	
+                pass	
+
+            except SearchError:	
+                print(timestamp() + bcolors.FAIL +	
+                      f"Tried {position} | Your search.txt is empty!" + bcolors.ENDC)	
+
+                create_html(	
+                    {"#f14c4c": f"Tried {position} | Your search.txt is empty!"})	
+
+                status = 400	
+                pass	
+
+            except CaptchaError:	            except CaptchaError:
+                print(timestamp() + bcolors.FAIL +	                print(timestamp() + bcolors.FAIL +
+                      f"Tried {position} | Slow internet speed or Stuck at recaptcha! Can't load YouTube..." + bcolors.ENDC)	                      f"Tried {position} | Slow internet speed or Stuck at recaptcha! Can't load YouTube..." + bcolors.ENDC)
+@@ -1089,6 +1120,22 @@ def main_viewer(proxy_type, proxy, position):
+                status = quit_driver(driver, pluginfile)	                status = quit_driver(driver, pluginfile)
+                pass	                pass
+
+
+    except UrlsError:
+        print(timestamp() + bcolors.FAIL +
+              f"Tried {position} | Your urls.txt is empty!" + bcolors.ENDC)
+
+        create_html(
+            {"#f14c4c": f"Tried {position} | Your urls.txt is empty!"})
+        pass
+
+    except SearchError:
+        print(timestamp() + bcolors.FAIL +
+              f"Tried {position} | Your search.txt is empty!" + bcolors.ENDC)
+
+        create_html(
+            {"#f14c4c": f"Tried {position} | Your search.txt is empty!"})
+        pass
+
+    except:	    except:
+        print(timestamp() + bcolors.OKBLUE + f"Tried {position} | " +	        print(timestamp() + bcolors.OKBLUE + f"Tried {position} | " +
+              bcolors.FAIL + f"{proxy} | {proxy_type} --> Bad proxy " + bcolors.ENDC)	              bcolors.FAIL + f"{proxy} | {proxy_type} --> Bad proxy " + bcolors.ENDC)
+@@ -1100,12 +1147,11 @@ def main_viewer(proxy_type, proxy, position):
+        pass	        pass
+
+
+
+
+
+def stop_server(immediate=False):	def stop_server(immediate=False):
+    global server_running	    global server_running
+
+
+    print('Trying to stop the server')	
+    if api and server_running:	    if api and server_running:
+        print('Trying to stop the server')
+        if not immediate:	        if not immediate:
+            while 'state=running' in str(futures[1:-1]):	            while 'state=running' in str(futures[1:-1]):
+                sleep(5)	                sleep(5)
+@@ -1139,7 +1185,7 @@ def view_video(position):
+
+
+
+
+def clean_exit(executor):	def clean_exit(executor):
+    executor.shutdown(wait = False)	    executor.shutdown(wait=False)
+
+
+    driver_list_ = list(driver_list)	    driver_list_ = list(driver_list)
+    for driver in driver_list_:	    for driver in driver_list_:
+@@ -1150,7 +1196,7 @@ def clean_exit(executor):
+            work_item = executor._work_queue.get_nowait()	            work_item = executor._work_queue.get_nowait()
+        except queue.Empty:	        except queue.Empty:
+            break	            break
+                            	
+        if work_item is not None:	        if work_item is not None:
+            work_item.future.cancel()	            work_item.future.cancel()
+
+
+@@ -1179,7 +1225,7 @@ def main():
+                if len(view) == views:	                if len(view) == views:
+                    print(	                    print(
+                        bcolors.WARNING + f'Amount of views added : {views} | Stopping program...' + bcolors.ENDC)	                        bcolors.WARNING + f'Amount of views added : {views} | Stopping program...' + bcolors.ENDC)
+                    	
+                    clean_exit(executor)	                    clean_exit(executor)
+                    stop_server()	                    stop_server()
+                    break	                    break
+@@ -1196,14 +1242,15 @@ def main():
+                        else:	                        else:
+                            proxy_list = gather_proxy()	                            proxy_list = gather_proxy()
+
+
+                        proxy_list = list(filter(None, proxy_list))  # removing empty lines	                        # removing empty lines
+                        proxy_list = list(filter(None, proxy_list))
+
+
+                        print(bcolors.WARNING +	                        print(bcolors.WARNING +
+                            f'Proxy reloaded from : {filename}' + bcolors.ENDC)	                              f'Proxy reloaded from : {filename}' + bcolors.ENDC)
+
+
+                        total_proxies = len(proxy_list)	                        total_proxies = len(proxy_list)
+                        print(bcolors.OKCYAN +	                        print(bcolors.OKCYAN +
+                            f'Total proxies : {total_proxies}' + bcolors.ENDC)	                              f'Total proxies : {total_proxies}' + bcolors.ENDC)
+
+
+                        proxy_list.insert(0, 'dummy')	                        proxy_list.insert(0, 'dummy')
+                        proxy_list.append('dummy')	                        proxy_list.append('dummy')
+@@ -1213,7 +1260,7 @@ def main():
+                        clean_exit(executor)	                        clean_exit(executor)
+                        stop_server()	                        stop_server()
+                        break	                        break
+                    	
+                future.result()	                future.result()
+
+
+        except KeyboardInterrupt:	        except KeyboardInterrupt:
+@@ -1225,7 +1272,7 @@ def main():
+
+
+
+
+if __name__ == '__main__':	if __name__ == '__main__':
+    	
+    check_update()	    check_update()
+    OSNAME, EXE_NAME = download_driver()	    OSNAME, EXE_NAME = download_driver()
+    create_database()	    create_database()
+@@ -1290,7 +1337,7 @@ def main():
+    if filename:	    if filename:
+        if category == 'r':	        if category == 'r':
+            proxy_list = [filename]	            proxy_list = [filename]
+            proxy_list = proxy_list * 100000	            proxy_list = proxy_list * 1000
+        else:	        else:
+            if proxy_api:	            if proxy_api:
+                proxy_list = scrape_api(filename)	                proxy_list = scrape_api(filename)
